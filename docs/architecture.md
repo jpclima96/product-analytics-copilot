@@ -114,12 +114,17 @@ pergunta não corresponde a nenhuma métrica conhecida, listando as disponíveis
 ### `EventType` (enum fechado — whitelist)
 
 ```
-signup · activated · onboarding_step_completed · feature_used
-login · session_start · churned
+signup · onboarding_step_completed · project_created · feature_used
+activated · login · session_start · subscription_started · subscription_cancelled
 ```
 
 O enum ser **fechado** é parte da defesa anti-alucinação: apenas eventos conhecidos
 entram no sistema, e as métricas só podem se referir a eles.
+
+> **Nota (E2):** o conjunto foi estendido em relação ao rascunho inicial para cobrir
+> os eventos exigidos pela camada de dados — `project_created`, `subscription_started`
+> e `subscription_cancelled` (cancelamento, no lugar do genérico `churned`). Fonte de
+> verdade do enum: `app/core/models.py`.
 
 ---
 

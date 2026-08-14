@@ -1,0 +1,19 @@
+[project]
+name = "product-analytics-copilot"
+version = "0.1.0"
+description = "Copilot de product analytics — camada de dados"
+requires-python = ">=3.11"
+dependencies = [
+    "duckdb>=1.0",
+    "numpy>=1.26",
+    "pandas>=2.0",
+    "pydantic>=2.0",
+    "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.0"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]

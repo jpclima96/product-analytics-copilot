@@ -33,7 +33,10 @@ Streamlit UI → FastAPI → IntentRouter → MetricRegistry → QueryEngine (Du
 - Toda métrica é um `MetricSpec` onde a **definição textual e o template SQL são a
   mesma fonte de verdade** — a definição mostrada ao usuário descreve exatamente o SQL
   executado.
-- Métricas só se referem a eventos do enum fechado `EventType`.
+- Métricas só se referem a eventos do enum fechado `EventType` (fonte de verdade:
+  `app/core/models.py`: `signup`, `onboarding_step_completed`, `project_created`,
+  `feature_used`, `activated`, `login`, `session_start`, `subscription_started`,
+  `subscription_cancelled`).
 - Escolhas de janela/semântica (ex.: `retention_d7` = dia 7 exato) são decisões
   explícitas documentadas no `MetricSpec` e em `docs/architecture.md`.
 - Adicionar uma métrica = adicionar um `MetricSpec` completo (definição + SQL

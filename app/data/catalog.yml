@@ -1,0 +1,47 @@
+# Catálogo de métricas — fonte única de verdade da definição e do SQL.
+# `allowed_dimensions` é a whitelist de dimensões que poderão ser usadas em
+# recortes/filtros futuros (defesa contra injeção: nada fora desta lista).
+version: 1
+
+metrics:
+  activation_rate:
+    version: 1
+    definition: >
+      Usuários que atingiram o evento 'activated' dentro de N dias após o signup
+      (default 7d), dividido pelo total de signups no período.
+    grain: user
+    visualization: kpi
+    default_params:
+      window_days: 7
+    allowed_dimensions: [plan, country]
+
+  onboarding_funnel:
+    version: 1
+    definition: >
+      Conversão passo-a-passo do onboarding (onboarding_step_completed):
+      usuários por passo, % do topo do funil e % do passo anterior.
+    grain: step
+    visualization: funnel
+    default_params: {}
+    allowed_dimensions: [plan, country]
+
+  retention_d7:
+    version: 1
+    definition: >
+      Dos usuários que fizeram signup no dia D, a fração com pelo menos um evento
+      de atividade (login/feature_used/session_start) no dia 7 exato após o
+      signup, janela [D+7, D+8). Coortes sem observação completa são excluídas.
+    grain: cohort
+    visualization: kpi
+    default_params: {}
+    allowed_dimensions: [plan, country]
+
+  feature_adoption:
+    version: 1
+    definition: >
+      Para cada feature, usuários únicos que a utilizaram dividido pelo total de
+      usuários ativos no período.
+    grain: feature
+    visualization: bar
+    default_params: {}
+    allowed_dimensions: [plan, country]
