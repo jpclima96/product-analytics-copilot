@@ -7,8 +7,8 @@ import re
 import pytest
 
 from app.core.models import EventType
-from app.core.registry import MetricRegistry, default_registry
-from app.data.metrics import ALLOWED_PARAMS
+from app.core.engine import ALLOWED_PARAMS
+from app.core.registry import MetricRegistry
 
 EXPECTED = {"activation_rate", "onboarding_funnel", "retention_d7", "feature_adoption"}
 FORBIDDEN_SQL = re.compile(
@@ -17,9 +17,6 @@ FORBIDDEN_SQL = re.compile(
 )
 
 
-@pytest.fixture(scope="module")
-def registry():
-    return default_registry()
 
 
 def test_registry_has_exactly_the_four_metrics(registry):
