@@ -1,7 +1,7 @@
 # Product Analytics Copilot — Arquitetura
 
-> **Status:** decisões de arquitetura (fase de design). Nenhum código de aplicação
-> foi implementado ainda. Este documento é a fonte de verdade das decisões.
+> **Status:** implementado (E0–E9). Este documento é a fonte de verdade das decisões;
+> a seção 7 registra os detalhes de implementação. Como rodar: `README.md`.
 
 O **Product Analytics Copilot** recebe perguntas em linguagem natural sobre um
 produto SaaS e devolve, para cada pergunta: **resposta em texto, gráfico, tabela,
@@ -114,12 +114,17 @@ pergunta não corresponde a nenhuma métrica conhecida, listando as disponíveis
 ### `EventType` (enum fechado — whitelist)
 
 ```
-signup · activated · onboarding_step_completed · feature_used
-login · session_start · churned
+signup · onboarding_step_completed · project_created · feature_used
+activated · login · session_start · subscription_started · subscription_cancelled
 ```
 
 O enum ser **fechado** é parte da defesa anti-alucinação: apenas eventos conhecidos
 entram no sistema, e as métricas só podem se referir a eles.
+
+> **Nota (E2):** o conjunto foi estendido em relação ao rascunho inicial para cobrir
+> os eventos exigidos pela camada de dados — `project_created`, `subscription_started`
+> e `subscription_cancelled` (cancelamento, no lugar do genérico `churned`). Fonte de
+> verdade do enum: `app/core/models.py`.
 
 ---
 
@@ -217,3 +222,41 @@ Para uma feature X: usuários únicos com `feature_used`
 | **E9** | README + como rodar | `README.md`, deps | Instruções reproduzíveis |
 
 Cada entrega tem testes próprios e pode ser commitada e validada isoladamente.
+
+---
+
+## 7. Notas de implementação
+
+Detalhes que concretizam as decisões acima sem alterá-las.
+
+- **Fonte da registry.** Cada `MetricSpec` é montado de `app/data/catalog.yml`
+  (definição, título, sinônimos, visualização, coluna de valor, template de resposta)
+  e de `app/data/sql/<métrica>/v<version>.sql`. Definição e SQL ficam lado a lado,
+  versionados juntos; testes checam que a definição de `retention_d7` cita
+  `[D+7, D+8)` e que o SQL usa `INTERVAL 7/8 DAY`.
+- **IntentRouter.** A pergunta é normalizada (minúsculas, sem acentos, sem
+  stopwords). O score de cada sinônimo é a fração dos seus tokens presentes na
+  pergunta: frase contígua vale 1,0, e um token com radical igual (5 primeiras
+  letras) vale 0,8. O score da métrica é o melhor entre seus sinônimos. Limiar:
+  **0,6**. Empate entre métricas é desfeito pelo sinônimo mais longo; se persistir, a
+  pergunta é tratada como **ambígua** e não é respondida.
+- **Parâmetros.** Somente `start`, `end` e `window_days` podem ser vinculados. Os
+  valores vêm do catálogo (`default_params`) ou do próprio banco (período padrão =
+  primeiro signup → último evento). **Nenhum parâmetro é extraído da pergunta**: ela
+  é usada apenas para roteamento.
+- **SQL exposto.** `AskResponse.sql` é o texto exatamente executado: o template da
+  registry precedido de um comentário `-- bound params: ...` com os valores
+  vinculados, para que a consulta possa ser reproduzida.
+- **Limites.** O `QueryEngine` abre o DuckDB com `read_only=True`, interrompe a
+  consulta após 10s (`QueryTimeoutError` → HTTP 504) e limita o resultado a 1.000
+  linhas.
+- **Resposta textual.** `answer_template` é formatado apenas com colunas da
+  primeira e da última linha do resultado, `value`, `n_rows` e os parâmetros
+  vinculados. Resultado sem valor gera "não há dados suficientes", nunca um número.
+  Um teste verifica que todo número citado na resposta existe no resultado.
+- **Gráficos.** Uma série por métrica, numa única cor e sem legenda: `kpi` vira
+  número em destaque (`Indicator`), `funnel` vira `Funnel` e `bar` vira barras
+  horizontais ordenadas. O fundo é transparente para herdar o tema da UI.
+- **API.** O arquivo DuckDB (`PAC_DB_PATH`) é gerado na inicialização se não
+  existir, nunca no caminho de request. CORS é restrito a `PAC_CORS_ORIGINS`.
+  Erros inesperados retornam uma mensagem genérica; o detalhe só vai para o log.

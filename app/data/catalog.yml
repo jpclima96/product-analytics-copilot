@@ -1,0 +1,117 @@
+# Catálogo de métricas — fonte única de verdade da definição e do SQL.
+#
+# Cada entrada vira um `MetricSpec` (app/core/registry.py):
+#   - `definition` + `sql/<nome>/v<version>.sql` descrevem a MESMA métrica;
+#   - `synonyms` alimentam o IntentRouter (matching determinístico, sem LLM);
+#   - `value_column`/`value_row` dizem de onde sai o `value` da resposta;
+#   - `answer_template` é formatado SOMENTE com valores do resultado do SQL e
+#     com os parâmetros vinculados. Chaves disponíveis: colunas da primeira
+#     linha, colunas da última linha com prefixo `last_`, `value`, `n_rows` e
+#     os parâmetros (`window_days`, ...).
+# `allowed_dimensions` é a whitelist de dimensões que poderão ser usadas em
+# recortes/filtros futuros (defesa contra injeção: nada fora desta lista).
+version: 1
+
+metrics:
+  activation_rate:
+    version: 1
+    title: Taxa de ativação
+    definition: >
+      Usuários que atingiram o evento 'activated' dentro de N dias após o signup
+      (default 7d), dividido pelo total de signups no período.
+    grain: user
+    visualization: kpi
+    value_column: activation_rate
+    value_row: first
+    answer_template: >-
+      A taxa de ativação em {window_days} dias após o signup é {value:.1%}:
+      {activated} de {signups} usuários cadastrados no período ativaram.
+    synonyms:
+      - taxa de ativação
+      - ativação
+      - activation rate
+      - activation
+      - usuários ativados
+      - quantos ativaram
+      - ativaram
+    default_params:
+      window_days: 7
+    allowed_dimensions: [plan, country]
+
+  onboarding_funnel:
+    version: 1
+    title: Funil de onboarding
+    definition: >
+      Conversão passo-a-passo do onboarding (onboarding_step_completed):
+      usuários por passo, % do topo do funil e % do passo anterior.
+    grain: step
+    visualization: funnel
+    value_column: pct_of_top
+    value_row: last
+    answer_template: >-
+      {users} usuários concluíram o passo {step} do onboarding e {last_users}
+      chegaram ao passo {last_step}: {value:.1%} do topo do funil.
+    synonyms:
+      - funil de onboarding
+      - funil
+      - onboarding funnel
+      - onboarding
+      - conversão do onboarding
+      - passos do onboarding
+      - etapas do onboarding
+    default_params: {}
+    allowed_dimensions: [plan, country]
+
+  retention_d7:
+    version: 1
+    title: Retenção D7
+    definition: >
+      Dos usuários que fizeram signup no dia D, a fração com pelo menos um evento
+      de atividade (login/feature_used/session_start) no dia 7 exato após o
+      signup, janela [D+7, D+8). Coortes sem observação completa são excluídas.
+    grain: cohort
+    visualization: kpi
+    value_column: retention_d7
+    value_row: first
+    answer_template: >-
+      A retenção D7 (dia 7 exato) é {value:.1%}: {retained_d7} de
+      {cohort_users} usuários da coorte tiveram atividade no 7º dia após o
+      signup.
+    synonyms:
+      - retenção d7
+      - retenção dia 7
+      - retenção de 7 dias
+      - retenção
+      - retention d7
+      - retention
+      - d7
+      - voltaram no dia 7
+      - retidos
+    default_params: {}
+    allowed_dimensions: [plan, country]
+
+  feature_adoption:
+    version: 1
+    title: Adoção de features
+    definition: >
+      Para cada feature, usuários únicos que a utilizaram dividido pelo total de
+      usuários ativos no período.
+    grain: feature
+    visualization: bar
+    value_column: adoption_rate
+    value_row: first
+    answer_template: >-
+      A feature mais adotada é '{feature_name}', usada por {value:.1%} dos
+      usuários ativos ({users} de {active_users}). A menos adotada é
+      '{last_feature_name}' ({last_adoption_rate:.1%}).
+    synonyms:
+      - adoção de features
+      - adoção de funcionalidades
+      - adoção
+      - feature adoption
+      - features mais usadas
+      - funcionalidades mais usadas
+      - uso de features
+      - quais features
+    default_params: {}
+    allowed_dimensions: [plan, country]
