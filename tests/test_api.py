@@ -91,6 +91,7 @@ def test_cors_allows_only_configured_origin(client):
 def test_internal_errors_do_not_leak_details(db_path):
     app = create_app(db_path)
     with TestClient(app, raise_server_exceptions=False) as c:
+
         class Boom:
             def ask(self, question):
                 raise RuntimeError("Catalog Error: Table events_secret does not exist")
@@ -107,6 +108,7 @@ def test_query_timeout_returns_504(db_path):
 
     app = create_app(db_path)
     with TestClient(app) as c:
+
         class Slow:
             def ask(self, question):
                 raise QueryTimeoutError("Consulta excedeu 10s")

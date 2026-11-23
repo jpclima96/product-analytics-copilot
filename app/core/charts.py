@@ -90,9 +90,7 @@ def bar_chart(spec: MetricSpec, rows: Rows) -> go.Figure:
     fig.update_layout(
         **_base_layout(spec.title),
         bargap=0.35,
-        xaxis=dict(
-            tickformat=".0%", range=[0, 1.1], gridcolor=MUTED, zeroline=False
-        ),
+        xaxis=dict(tickformat=".0%", range=[0, 1.1], gridcolor=MUTED, zeroline=False),
         yaxis=dict(showgrid=False),
     )
     return fig

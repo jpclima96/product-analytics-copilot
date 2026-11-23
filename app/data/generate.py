@@ -23,9 +23,9 @@ from app.core.models import EventType
 # Parâmetros do gerador (decisões de modelagem)
 # --------------------------------------------------------------------------- #
 SEED = 42
-DEFAULT_N_USERS = 12_000          # "pelo menos 10.000 usuários"
-SIGNUP_WINDOW_DAYS = 182          # ~6 meses de cadastros
-ACTIVITY_HORIZON_DAYS = 90        # janela de atividade por usuário após o signup
+DEFAULT_N_USERS = 12_000  # "pelo menos 10.000 usuários"
+SIGNUP_WINDOW_DAYS = 182  # ~6 meses de cadastros
+ACTIVITY_HORIZON_DAYS = 90  # janela de atividade por usuário após o signup
 START_DATE = datetime(2025, 1, 1)  # naive UTC (evita ambiguidade de fuso)
 
 FEATURES = ["dashboards", "reports", "alerts", "integrations", "export", "api"]
@@ -39,7 +39,7 @@ ONB_P_STEP3 = 0.72
 P_PROJECT_AFTER_ONB = 0.75
 P_SUBSCRIBE_IF_ACTIVATED = 0.55
 P_CANCEL_IF_SUBSCRIBED = 0.28
-RETENTION_DECAY_DAYS = 45.0       # escala de decaimento da atividade
+RETENTION_DECAY_DAYS = 45.0  # escala de decaimento da atividade
 
 
 def generate_frames(

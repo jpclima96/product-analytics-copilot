@@ -67,7 +67,11 @@ def _to_json_value(value: Any) -> Any:
 
 def _format_param(value: Any) -> str:
     if isinstance(value, datetime | date):
-        return value.isoformat(sep=" ") if isinstance(value, datetime) else value.isoformat()
+        return (
+            value.isoformat(sep=" ")
+            if isinstance(value, datetime)
+            else value.isoformat()
+        )
     return str(value)
 
 
@@ -134,7 +138,9 @@ class QueryEngine:
         header = ", ".join(f"{k}={_format_param(v)}" for k, v in sorted(bind.items()))
         return f"-- bound params: {header}\n{spec.sql.strip()}"
 
-    def run(self, spec: MetricSpec, params: dict[str, Any] | None = None) -> QueryResult:
+    def run(
+        self, spec: MetricSpec, params: dict[str, Any] | None = None
+    ) -> QueryResult:
         """Executa a métrica e devolve o resultado (com timeout e limite)."""
         bind = self.resolve_params(spec, params)
         sql = self.render_sql(spec, bind)
@@ -147,9 +153,7 @@ class QueryEngine:
             columns = [d[0] for d in cursor.description]
             raw = cursor.fetchmany(self.max_rows + 1)
         except duckdb.InterruptException as exc:
-            raise QueryTimeoutError(
-                f"Consulta excedeu {self.timeout_s:.0f}s"
-            ) from exc
+            raise QueryTimeoutError(f"Consulta excedeu {self.timeout_s:.0f}s") from exc
         finally:
             timer.cancel()
             cursor.close()

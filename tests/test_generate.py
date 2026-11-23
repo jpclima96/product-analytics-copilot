@@ -8,7 +8,6 @@ import pandas as pd
 
 from app.core.models import Event, EventType, User
 from app.data.generate import (
-    DEFAULT_N_USERS,
     SEED,
     SIGNUP_WINDOW_DAYS,
     generate_frames,

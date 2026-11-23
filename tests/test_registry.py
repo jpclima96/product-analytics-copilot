@@ -6,8 +6,8 @@ import re
 
 import pytest
 
-from app.core.models import EventType
 from app.core.engine import ALLOWED_PARAMS
+from app.core.models import EventType
 from app.core.registry import MetricRegistry
 
 EXPECTED = {"activation_rate", "onboarding_funnel", "retention_d7", "feature_adoption"}
@@ -15,8 +15,6 @@ FORBIDDEN_SQL = re.compile(
     r"\b(INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|ATTACH|COPY|PRAGMA|INSTALL|LOAD)\b",
     re.IGNORECASE,
 )
-
-
 
 
 def test_registry_has_exactly_the_four_metrics(registry):
@@ -49,8 +47,12 @@ def test_sql_is_read_only_template(registry, name):
 
 @pytest.mark.parametrize("name", sorted(EXPECTED))
 def test_sql_only_references_whitelisted_events(registry, name):
-    code = "\n".join(line.split("--")[0] for line in registry.get(name).sql.splitlines())
-    literals = {lit for lit in re.findall(r"'([^']*)'", code) if not lit.startswith("$")}
+    code = "\n".join(
+        line.split("--")[0] for line in registry.get(name).sql.splitlines()
+    )
+    literals = {
+        lit for lit in re.findall(r"'([^']*)'", code) if not lit.startswith("$")
+    }
     assert literals <= {e.value for e in EventType}
 
 

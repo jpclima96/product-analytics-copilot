@@ -29,7 +29,9 @@ EXAMPLES = [
     "Quais features são mais usadas?",
 ]
 
-st.set_page_config(page_title="Product Analytics Copilot", page_icon="📊", layout="wide")
+st.set_page_config(
+    page_title="Product Analytics Copilot", page_icon="📊", layout="wide"
+)
 
 
 @st.cache_data(ttl=300, show_spinner=False)
@@ -108,7 +110,9 @@ def main() -> None:
 
     with st.form("ask"):
         question = st.text_input(
-            "Sua pergunta", key="question", max_chars=500,
+            "Sua pergunta",
+            key="question",
+            max_chars=500,
             placeholder="Ex.: qual a taxa de ativação?",
         )
         submitted = st.form_submit_button("Perguntar", type="primary")

@@ -29,8 +29,9 @@ def test_open_missing_file(tmp_path):
         QueryEngine.open(tmp_path / "nao_existe.duckdb")
 
 
-@pytest.mark.parametrize("name", ["activation_rate", "onboarding_funnel",
-                                  "retention_d7", "feature_adoption"])
+@pytest.mark.parametrize(
+    "name", ["activation_rate", "onboarding_funnel", "retention_d7", "feature_adoption"]
+)
 def test_every_metric_runs(engine, registry, name):
     result = engine.run(registry.get(name))
     assert result.rows
@@ -53,9 +54,7 @@ def test_result_sql_is_exactly_what_ran(engine, con, registry):
     # Reexecutar o texto devolvido com os mesmos parâmetros dá o mesmo resultado.
     bind = engine.resolve_params(registry.get("activation_rate"))
     again = con.execute(result.sql, bind).fetchone()
-    assert list(result.rows[0].values()) == pytest.approx(
-        [float(v) for v in again]
-    )
+    assert list(result.rows[0].values()) == pytest.approx([float(v) for v in again])
 
 
 def test_only_referenced_params_are_bound(engine, registry):

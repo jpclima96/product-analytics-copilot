@@ -27,9 +27,7 @@ def get_metric(name: str) -> dict:
     """Retorna a spec de uma métrica ou levanta KeyError (whitelist)."""
     metrics = load_catalog()["metrics"]
     if name not in metrics:
-        raise KeyError(
-            f"Métrica desconhecida: {name!r}. Disponíveis: {list(metrics)}"
-        )
+        raise KeyError(f"Métrica desconhecida: {name!r}. Disponíveis: {list(metrics)}")
     return metrics[name]
 
 

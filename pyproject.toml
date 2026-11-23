@@ -1,7 +1,8 @@
 [project]
 name = "product-analytics-copilot"
 version = "0.1.0"
-description = "Copilot de product analytics — camada de dados"
+description = "Copilot de product analytics: perguntas em linguagem natural respondidas com SQL parametrizado e auditável"
+readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "duckdb>=1.0",
@@ -9,11 +10,32 @@ dependencies = [
     "pandas>=2.0",
     "pydantic>=2.0",
     "pyyaml>=6.0",
+    "plotly>=5.20",
+    "fastapi>=0.110",
+    "uvicorn>=0.29",
+    "streamlit>=1.40",
+    "requests>=2.31",
 ]
 
 [project.optional-dependencies]
-dev = ["pytest>=7.0"]
+dev = ["pytest>=7.0", "httpx>=0.27", "ruff>=0.6"]
 
 [tool.pytest.ini_options]
 pythonpath = ["."]
 testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "S", "SIM"]
+ignore = [
+    "S101",   # assert é o idioma do pytest
+    "UP042",  # EventType(str, Enum) é decisão aprovada; StrEnum muda str()
+    "SIM905", # listas de palavras ficam mais legíveis como "...".split()
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S"]
+"app/data/generate.py" = ["S311"]

@@ -30,9 +30,9 @@ STOPWORDS = frozenset(
     """
     a o as os um uma uns umas de da do das dos em no na nos nas e ou
     para por pra pro com sem que qual quais quanto quantos quanta quantas
-    como foi e eh esta sao ser ter tem temos tivemos nosso nossa meu minha
+    como foi eh esta sao ser ter tem temos tivemos nosso nossa meu minha
     me mostre mostra mostrar ver veja quero saber sobre ao aos
-    the of in on and or what is are was how show me my our to for
+    the of in on and or what is are was how show my our to for
     """.split()
 )
 
@@ -113,9 +113,7 @@ class IntentRouter:
                 ),
                 key=lambda t: (t[0], t[1]),
             )
-            candidates.append(
-                Candidate(spec.name, round(best[0], 4), best[1], best[2])
-            )
+            candidates.append(Candidate(spec.name, round(best[0], 4), best[1], best[2]))
         return sorted(candidates, key=lambda c: (c.score, c.specificity), reverse=True)
 
     def route(self, question: str) -> RouteResult:

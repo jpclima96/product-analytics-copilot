@@ -81,9 +81,7 @@ class Copilot:
             )
         else:
             answer = NO_MATCH_TEMPLATE.format(available=self._available())
-        return AskResponse(
-            answer=answer, confidence=route.confidence, matched=False
-        )
+        return AskResponse(answer=answer, confidence=route.confidence, matched=False)
 
     def ask(self, question: str) -> AskResponse:
         route = self.router.route(question)

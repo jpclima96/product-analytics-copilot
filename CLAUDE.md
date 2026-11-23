@@ -86,11 +86,10 @@ docs/architecture.md     # decisões de design
 Rodar antes de considerar qualquer mudança concluída:
 
 ```bash
-pytest -q          # toda a suíte deve passar
+pytest -q               # toda a suíte deve passar
+ruff check .            # lint (config em pyproject.toml)
+ruff format --check .   # formatação
 ```
-
-*(À medida que a config for adicionada, incluir também lint/format — ex. `ruff check .`
-e `ruff format --check .`. Não introduzir comandos que não existam ainda no repo.)*
 
 ## Decisões que NÃO devem ser alteradas sem aprovação
 

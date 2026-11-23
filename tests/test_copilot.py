@@ -68,9 +68,9 @@ def test_answer_cites_only_numbers_from_result(copilot, metric):
     resp = copilot.ask(QUESTIONS[metric])
     cited = re.findall(r"\d+(?:\.\d+)?", resp.answer)
     allowed = _allowed_numbers(resp) | {
-        str(v) for v in copilot.engine.resolve_params(
-            copilot.registry.get(metric)
-        ).values() if isinstance(v, int)
+        str(v)
+        for v in copilot.engine.resolve_params(copilot.registry.get(metric)).values()
+        if isinstance(v, int)
     }
     assert set(cited) <= allowed, f"números sem origem no SQL: {set(cited) - allowed}"
 
