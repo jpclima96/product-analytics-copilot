@@ -10,8 +10,9 @@ from __future__ import annotations
 
 from datetime import datetime
 from enum import Enum
+from typing import Any, Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class EventType(str, Enum):
@@ -54,3 +55,69 @@ class Event(BaseModel):
     event_ts: datetime
     properties: dict = Field(default_factory=dict)
     session_id: str | None = None
+
+
+# --------------------------------------------------------------------------- #
+# Contratos da camada de aplicação (E1/E3)
+# --------------------------------------------------------------------------- #
+
+#: Tamanho máximo aceito para a pergunta em linguagem natural.
+MAX_QUESTION_LENGTH = 500
+
+Visualization = Literal["kpi", "funnel", "bar"]
+
+
+class MetricSpec(BaseModel):
+    """Especificação imutável de uma métrica da whitelist.
+
+    ``definition`` e ``sql`` vêm da mesma entrada do catálogo
+    (`app/data/catalog.yml` + `app/data/sql/<name>/v<version>.sql`) e são a
+    única fonte de verdade do que é mostrado e do que é executado.
+    """
+
+    model_config = ConfigDict(frozen=True)
+
+    name: str = Field(pattern=r"^[a-z][a-z0-9_]*$")
+    version: int = Field(ge=1)
+    title: str
+    definition: str
+    sql: str
+    synonyms: tuple[str, ...] = Field(min_length=1)
+    visualization: Visualization
+    value_column: str
+    value_row: Literal["first", "last"] = "first"
+    answer_template: str
+    default_params: dict[str, int | float | str] = Field(default_factory=dict)
+    allowed_dimensions: tuple[str, ...] = ()
+
+
+class AskRequest(BaseModel):
+    """Entrada de ``POST /ask``. A pergunta só é usada para matching."""
+
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+
+    question: str = Field(min_length=1, max_length=MAX_QUESTION_LENGTH)
+
+
+class AskResponse(BaseModel):
+    """Contrato de saída de ``POST /ask`` (ver `docs/architecture.md`)."""
+
+    metric: str | None = None
+    answer: str
+    value: float | None = None
+    definition: str | None = None
+    sql: str | None = None
+    table: list[dict[str, Any]] = Field(default_factory=list)
+    chart: dict[str, Any] | None = None
+    confidence: float = Field(ge=0.0, le=1.0)
+    matched: bool
+
+
+class MetricInfo(BaseModel):
+    """Resumo público de uma métrica (``GET /metrics``)."""
+
+    name: str
+    title: str
+    definition: str
+    synonyms: list[str]
+    visualization: Visualization
