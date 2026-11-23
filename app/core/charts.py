@@ -45,7 +45,7 @@ def kpi_chart(spec: MetricSpec, rows: Rows) -> go.Figure:
             number=dict(valueformat=".1%", font=dict(size=56)),
         )
     )
-    fig.update_layout(**{**_base_layout(spec.title), "height": 220})
+    fig.update_layout(**{**_base_layout(spec.title), "height": 180})
     return fig
 
 
@@ -56,7 +56,7 @@ def funnel_chart(spec: MetricSpec, rows: Rows) -> go.Figure:
             y=[f"Passo {r['step']}" for r in rows],
             x=[r["users"] for r in rows],
             customdata=[[r["pct_of_top"], r["pct_of_prev"]] for r in rows],
-            textinfo="value+percent initial",
+            texttemplate="%{x:d}<br>%{percentInitial:.1%}",
             marker=dict(color=SERIES_COLOR),
             connector=dict(fillcolor=MUTED, line=dict(width=0)),
             hovertemplate=(
